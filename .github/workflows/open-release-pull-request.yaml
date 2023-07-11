@@ -16,7 +16,6 @@ on:
         type: string
         description: 'Does this release have a name? Ex. Seymour'
       release_notes_url:
-        required: true
         type: string
         description: 'Does this release have a release notes url?'
       notify_users_to_refresh:
@@ -75,10 +74,12 @@ jobs:
               title += ' - ${{ github.event.inputs.release_name }}';
             }
             
-            const body = `The refresh requirement is set to **${urgency}**.\n` + 
-                         'Please see the release notes for more information.\n' +
-                         '${{ github.event.inputs.release_notes_url }}\n\n' +
-                         'Author: @${{ github.actor }}';
+            let body = `The refresh requirement is set to **${urgency}**.\n\n`;
+            if ('${{ github.event.inputs.release_notes_url }}' !== '') {
+                body += 'Please see the release notes for more information.\n' +
+                        'Release notes: ${{ github.event.inputs.release_notes_url }}\n\n';
+            }
+            body += 'Deployer: @${{ github.actor }}';
             
             // Create a pull request
             const { data: pullRequest } = await github.rest.pulls.create({
