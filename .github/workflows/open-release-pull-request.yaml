@@ -52,7 +52,7 @@ jobs:
             };
             const urgency = notifyUsersToRefreshMap[notifyUsersToRefresh];
             
-            const title = 'Release (${{ github.event.inputs.level }}))';
+            let title = 'Release (${{ github.event.inputs.level }}))';
             if ('${{ github.event.inputs.release_name }}' !== '') {
               title += ' - ${{ github.event.inputs.release_name }}';
             }
