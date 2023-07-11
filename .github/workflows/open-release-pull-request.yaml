@@ -29,9 +29,8 @@ on:
           - 'No refresh required'
 
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: write # This is required for creating releases
-  packages: write
+  pull-requests: write
+  issues: write
 
 jobs:
   create_pull_request:
