@@ -49,6 +49,7 @@ jobs:
               repo: context.repo.repo,
               head: '${{ github.ref_name }}',
               base: 'main',
+              state: 'open',
             });
             
             if (pullRequests.length > 0) {
