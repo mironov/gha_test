@@ -1,4 +1,4 @@
-name: Open a release pull request
+name: Open release pull request
 
 on:
   workflow_dispatch:
@@ -35,10 +35,10 @@ permissions:
 
 jobs:
   create_pull_request:
-    name: Create a pull request
+    name: Create pull request
     runs-on: ubuntu-latest
     steps:
-      - name: Create a pull request
+      - name: Create pull request
         id: create_pull_request
         uses: actions/github-script@v6
         with:
@@ -53,7 +53,7 @@ jobs:
             });
             
             if (pullRequests.length > 0) {
-              core.setFailed('Pull request already exists');
+              core.setFailed('Pull request for this release already exists');
               return;
             }
             
@@ -75,6 +75,11 @@ jobs:
               title += ' - ${{ github.event.inputs.release_name }}';
             }
             
+            const body = `The refresh requirement is set to **${urgency}**.\n` + 
+                         'Please see the release notes for more information.\n' +
+                         '${{ github.event.inputs.release_notes_url }}\n\n' +
+                         'Author: @${{ github.actor }}';
+            
             // Create a pull request
             const { data: pullRequest } = await github.rest.pulls.create({
               owner: context.repo.owner,
@@ -82,7 +87,7 @@ jobs:
               title: title,
               head: '${{ github.ref_name }}',
               base: 'main',
-              body: 'Release notes: ${{ github.event.inputs.release_notes_url }}',
+              body: body,
             });
             
             // Add labels to the pull request
