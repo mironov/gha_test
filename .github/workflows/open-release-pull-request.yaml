@@ -51,7 +51,11 @@ jobs:
             };
             const urgency = notifyUsersToRefreshMap[notifyUsersToRefresh];
             
-            let title = 'Release (${{ github.event.inputs.level }}))';
+            const capitalize = (string) => {
+              return string.charAt(0).toUpperCase() + string.slice(1);
+            };
+            
+            let title = `${capitalize('${{ github.event.inputs.level }}')} Release';
             if ('${{ github.event.inputs.release_name }}' !== '') {
               title += ' - ${{ github.event.inputs.release_name }}';
             }
@@ -61,7 +65,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: title,
-              head: context.ref,
+              head: context.ref_name,
               base: 'main',
               body: 'Release notes: ${{ github.event.inputs.release_notes_url }}',
             });
