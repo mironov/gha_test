@@ -43,6 +43,19 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            // Halt if PR already exists
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: '${{ github.ref_name }}',
+              base: 'main',
+            });
+            
+            if (pullRequests.length > 0) {
+              core.setFailed('Pull request already exists');
+              return;
+            }
+            
             // Parse urgency
             const notifyUsersToRefresh = '${{ github.event.inputs.notify_users_to_refresh }}';
             const notifyUsersToRefreshMap = {
