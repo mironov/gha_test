@@ -1,0 +1,76 @@
+name: Open a release pull request
+
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        required: true
+        type: choice
+        description: 'What version are we bumping to?'
+        default: patch
+        options:
+          - major
+          - minor
+          - patch
+      release_name:
+        type: string
+        description: 'Does this release have a name? Ex. Seymour'
+      release_notes_url:
+        required: true
+        type: string
+        description: 'Does this release have a release notes url?'
+      notify_users_to_refresh:
+        required: true
+        type: choice
+        description: 'Should we notify users to refresh? How urgently?'
+        options:
+          - 'Notify users to refresh ASAP ("immediate")'
+          - 'Notify users to refresh at their convenience ("unobtrusive")'
+          - 'No refresh required'
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for creating releases
+  packages: write
+
+jobs:
+  create_pull_request:
+    name: Create a pull request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create a pull request
+        id: create_pull_request
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Parse urgency
+            const notifyUsersToRefresh = '${{ github.event.inputs.notify_users_to_refresh }}';
+            const notifyUsersToRefreshMap = {
+              'Notify users to refresh ASAP ("immediate")': 'immediate',
+              'Notify users to refresh at their convenience ("unobtrusive")': 'unobtrusive',
+              'No refresh required': 'none',
+            };
+            const urgency = notifyUsersToRefreshMap[notifyUsersToRefresh];
+            
+            const title = 'Release (${{ github.event.inputs.level }}))';
+            if ('${{ github.event.inputs.release_name }}' !== '') {
+              title += ' - ${{ github.event.inputs.release_name }}';
+            }
+            
+            // Create a pull request
+            const { data: pullRequest } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              head: context.sha,
+              base: 'master',
+              body: 'Release notes: ${{ github.event.inputs.release_notes_url }}',
+            });
+            
+            // Add labels to the pull request
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pullRequest.number,
+              labels: ['release', `urgency:${urgency}`, `level:${{ github.event.inputs.level }}`],
+            });
