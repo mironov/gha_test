@@ -61,8 +61,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: title,
-              head: context.sha,
-              base: 'master',
+              head: context.ref,
+              base: 'main',
               body: 'Release notes: ${{ github.event.inputs.release_notes_url }}',
             });
             
