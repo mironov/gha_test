@@ -1,4 +1,4 @@
-name: Open release pull request
+name: Open Release Pull Request
 
 on:
   workflow_dispatch:

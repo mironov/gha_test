@@ -3,10 +3,11 @@ name: On Release Pull Request Open
 on:
   pull_request:
     branches:
-      - release**
+      - release*
     types:
       - opened
       - synchronize
+      - reopened
 
 permissions:
   id-token: write # This is required for requesting the JWT
