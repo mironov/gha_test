@@ -39,3 +39,4 @@ jobs:
             
             const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
             console.log(versionFile);
+            console.log(versionFile.version);
