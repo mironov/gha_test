@@ -44,8 +44,7 @@ jobs:
             // parse level from labels
             let level;
             context.payload.pull_request.labels.forEach(label => {
-              console.log('Label: ', label.name);
-              if (label.name.startsWith('label:')) {
+              if (label.name.startsWith('level:')) {
                 level = label.name.split(':')[1];
               }
             });
