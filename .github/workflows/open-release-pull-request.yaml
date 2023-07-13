@@ -1,4 +1,4 @@
-name: Open a release pull request
+name: Open release pull request
 
 on:
   workflow_dispatch:
@@ -16,7 +16,6 @@ on:
         type: string
         description: 'Does this release have a name? Ex. Seymour'
       release_notes_url:
-        required: true
         type: string
         description: 'Does this release have a release notes url?'
       notify_users_to_refresh:
@@ -29,20 +28,40 @@ on:
           - 'No refresh required'
 
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: write # This is required for creating releases
-  packages: write
+  contents: read
+  pull-requests: write
+  issues: write
 
 jobs:
   create_pull_request:
-    name: Create a pull request
+    name: Create pull request
     runs-on: ubuntu-latest
     steps:
-      - name: Create a pull request
+      - name: Create pull request
         id: create_pull_request
         uses: actions/github-script@v6
         with:
           script: |
+            // Exit if not a release branch
+            if (!'${{ github.ref_name }}'.startsWith('release-')) {
+              core.setFailed('Not a release branch');
+              return;
+            }
+            
+            // Exit if PR already exists
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: '${{ github.ref_name }}',
+              base: 'main',
+              state: 'open',
+            });
+            
+            if (pullRequests.length > 0) {
+              core.setFailed('Pull request for this release already exists');
+              return;
+            }
+            
             // Parse urgency
             const notifyUsersToRefresh = '${{ github.event.inputs.notify_users_to_refresh }}';
             const notifyUsersToRefreshMap = {
@@ -52,19 +71,30 @@ jobs:
             };
             const urgency = notifyUsersToRefreshMap[notifyUsersToRefresh];
             
-            let title = 'Release (${{ github.event.inputs.level }}))';
+            const capitalize = (string) => {
+              return string.charAt(0).toUpperCase() + string.slice(1);
+            };
+            
+            let title = `${capitalize('${{ github.event.inputs.level }}')} Release`;
             if ('${{ github.event.inputs.release_name }}' !== '') {
               title += ' - ${{ github.event.inputs.release_name }}';
             }
+            
+            let body = `The refresh requirement is set to **${urgency}**.\n\n`;
+            if ('${{ github.event.inputs.release_notes_url }}' !== '') {
+                body += 'Please see the release notes for more information.\n' +
+                        'Release notes: ${{ github.event.inputs.release_notes_url }}\n\n';
+            }
+            body += 'Deployer: @${{ github.actor }}';
             
             // Create a pull request
             const { data: pullRequest } = await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: title,
-              head: context.sha,
-              base: 'master',
-              body: 'Release notes: ${{ github.event.inputs.release_notes_url }}',
+              head: '${{ github.ref_name }}',
+              base: 'main',
+              body: body,
             });
             
             // Add labels to the pull request
