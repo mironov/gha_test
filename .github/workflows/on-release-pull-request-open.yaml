@@ -1,0 +1,45 @@
+name: On Release Pull Request Open
+
+on:
+  pull_request:
+    branches:
+      - release**
+    types:
+      - opened
+      - synchronize
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+  packages: write
+
+jobs:
+  determine_app_version:
+    name: Determine app version
+    if: contains(github.event.pull_request.labels.*.name, 'release')
+    runs-on: ubuntu-latest
+#    outputs:
+#      app_version: ${{ steps.determine_app_version.outputs.app_version }}
+#      previous_app_version: ${{ steps.determine_app_version.outputs.previous_app_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm install semver js-yaml
+      - name: Determine app version
+        id: determine_app_version
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          retries: 3
+          script: |
+            const semver = require('semver');
+            const yaml = require('js-yaml');
+            const fs = require('fs');
+            
+            const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
+            console.log(versionFile);
