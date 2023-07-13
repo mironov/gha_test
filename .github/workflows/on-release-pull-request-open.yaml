@@ -41,7 +41,7 @@ jobs:
             const latestVersion = semver.clean(versionFile[':version'][':current']);
             console.log('Latest release: ', latestVersion);
             
-            console.log(context);
+            console.log(context.payload.pull_request.labels);
 
 #            const level = context.pull_request.labels.*.name;
 #            const nextVersion = semver.inc(latestVersion, level);
