@@ -41,14 +41,19 @@ jobs:
             const latestVersion = semver.clean(versionFile[':version'][':current']);
             console.log('Latest release: ', latestVersion);
             
-            console.log(context.payload.pull_request.labels);
+            // parse level from labels
+            let level;
+            context.payload.pull_request.labels.forEach(label => {
+              if (label.name.startsWith('label:')) {
+                level = label.name.split(':')[1];
+              }
+            });
 
-#            const level = context.pull_request.labels.*.name;
-#            const nextVersion = semver.inc(latestVersion, level);
-#            console.log('Next release: ', nextVersion);
+            const nextVersion = semver.inc(latestVersion, level);
+            console.log('Next release: ', nextVersion);
 
-#            core.setOutput('previous_app_version', latestVersion)
-#            core.setOutput('app_version', nextVersion)
+            core.setOutput('previous_app_version', latestVersion)
+            core.setOutput('app_version', nextVersion)
 #  build_and_push_image:
 #    name: Image
 #    needs: determine_app_version
