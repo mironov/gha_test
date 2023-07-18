@@ -2,7 +2,11 @@ name: On Release Pull Request Open
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    branches:
+      - release**
+    types:
+      - opened
+      - synchronize
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -12,11 +16,11 @@ permissions:
 jobs:
   determine_app_version:
     name: Determine app version
-    if: startsWith(github.head_ref, 'release') && contains(github.event.pull_request.labels.*.name, 'release')
+    if: contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
-#    outputs:
-#      app_version: ${{ steps.determine_app_version.outputs.app_version }}
-#      previous_app_version: ${{ steps.determine_app_version.outputs.previous_app_version }}
+    outputs:
+      app_version: ${{ steps.determine_app_version.outputs.app_version }}
+      previous_app_version: ${{ steps.determine_app_version.outputs.previous_app_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -56,16 +60,16 @@ jobs:
 
             core.setOutput('previous_app_version', latestVersion)
             core.setOutput('app_version', nextVersion)
-#  build_and_push_image:
-#    name: Image
-#    needs: determine_app_version
-#    uses: ./.github/workflows/build-and-push-docker-image.yml
-#    secrets: inherit
-#    concurrency:
-#      group: ${{ github.event.pull_request.head.ref }} # A single build running per branch
-#      cancel-in-progress: true
-#    with:
-#      app_version: ${{ needs.determine_app_version.outputs.app_version }}
-#      commit_sha: ${{ github.event.pull_request.head.sha }}
-#      base_sha: ${{ github.event.pull_request.base.sha }}
-#      stage: rc
+  build_and_push_image:
+    name: Image
+    needs: determine_app_version
+    uses: ./.github/workflows/build-and-push-docker-image.yml
+    secrets: inherit
+    concurrency:
+      group: ${{ github.event.pull_request.head.ref }} # A single build running per branch
+      cancel-in-progress: true
+    with:
+      app_version: ${{ needs.determine_app_version.outputs.app_version }}
+      commit_sha: ${{ github.event.pull_request.head.sha }}
+      base_sha: ${{ github.event.pull_request.base.sha }}
+      stage: rc
