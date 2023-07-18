@@ -24,9 +24,6 @@ on:
       stage:
         required: false
         type: string
-      rc_image:
-        required: false
-        type: string
 
 jobs:
   build_and_push_image:
@@ -74,7 +71,7 @@ jobs:
           build-args: |
             GITHUB_TOKEN=${{ secrets.PACKAGES_GITHUB_TOKEN }}
             DOCKER_BASE=ruby:latest
-            RC_IMAGE=${{ inputs.rc_image }}
+            RC_IMAGE=ghcr.io/${{ github.repository }}:${{ inputs.commit_sha }}
             APP_VERSION=${{ inputs.app_version }}
           cache-from: |
             type=registry,ref=${{ steps.meta.outputs.tags }}
