@@ -71,7 +71,6 @@ jobs:
           build-args: |
             GITHUB_TOKEN=${{ secrets.PACKAGES_GITHUB_TOKEN }}
             DOCKER_BASE=ruby:latest
-            DOCKER_IMAGE=ruby:latest
             APP_VERSION=${{ inputs.app_version }}
           cache-from: |
             type=registry,ref=${{ steps.meta.outputs.tags }}
