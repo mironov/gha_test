@@ -14,6 +14,4 @@ FROM ${RC_IMAGE} as release
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
 
-# TODO: update version file
-
 ADD version.yaml /app
