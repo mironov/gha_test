@@ -1,4 +1,4 @@
-name: On Release Pull Request Open
+name: On Release Pull Request Merge
 
 on:
   pull_request:

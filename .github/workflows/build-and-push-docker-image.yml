@@ -53,6 +53,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           flavor: latest=false
+        env:
+          DOCKER_METADATA_PR_HEAD_SHA: true
       - name: Set Commit Message Environment Variable
         id: env-commit-msg
         run: |
