@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       app_version: ${{ steps.determine_app_version.outputs.app_version }}
+      previous_app_version: ${{ steps.determine_app_version.outputs.previous_app_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
