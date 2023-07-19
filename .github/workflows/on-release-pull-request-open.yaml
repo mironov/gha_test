@@ -12,7 +12,7 @@ permissions:
 jobs:
   determine_app_version:
     name: Determine app version
-    if: startsWith(github.head_ref, 'release') && contains(github.event.pull_request.labels.*.name, 'release')
+    if: startsWith(github.head_ref, 'release')
     runs-on: ubuntu-latest
     outputs:
       app_version: ${{ steps.determine_app_version.outputs.app_version }}
