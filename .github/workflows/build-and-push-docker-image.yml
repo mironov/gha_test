@@ -53,7 +53,11 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           flavor: latest=false
-          tags: type=raw,value=pr-{{ github.event.number }} # FIXME
+          tags: |
+            type=schedule,pattern=nightly,enable=true,priority=1000
+            type=ref,event=branch,enable=true,priority=600
+            type=ref,event=tag,enable=true,priority=600
+            type=raw,event=pr,value=pr-${{ github.event.number }},enable=true,priority=600
       - name: Set Commit Message Environment Variable
         id: env-commit-msg
         run: |
