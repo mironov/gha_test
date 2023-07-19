@@ -7,7 +7,7 @@ FROM ${DOCKER_BASE} as rc
 
 # Working Directory
 RUN mkdir -p /app
-RUN echo 123
+RUN sleep 60
 
 FROM ${RC_IMAGE} as release
 
