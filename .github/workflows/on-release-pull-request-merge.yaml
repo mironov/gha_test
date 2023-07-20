@@ -17,6 +17,8 @@ jobs:
     outputs:
       app_version: ${{ steps.determine_app_version.outputs.app_version }}
       previous_app_version: ${{ steps.determine_app_version.outputs.previous_app_version }}
+      level: ${{ steps.determine_app_version.outputs.level }}
+      urgency: ${{ steps.determine_app_version.outputs.urgency }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
