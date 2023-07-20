@@ -67,6 +67,5 @@ jobs:
     with:
       app_version: ${{ needs.determine_app_version.outputs.app_version }}
       commit_sha: ${{ github.event.pull_request.head.sha }}
-      rc_commit_sha: ${{ github.event.pull_request.head.sha }}
       base_sha: ${{ github.event.pull_request.base.sha }}
       stage: rc
