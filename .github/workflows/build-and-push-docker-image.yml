@@ -80,7 +80,7 @@ jobs:
             GITHUB_TOKEN=${{ secrets.PACKAGES_GITHUB_TOKEN }}
             DOCKER_BASE=ruby:latest
             APP_VERSION=${{ inputs.app_version }}
-            RC_IMAGE=ghcr.io/${{ github.repository }}:${{ inputs.rc_commit_sha }}
+            RC_IMAGE=ghcr.io/${{ github.repository }}:${{ inputs.rc_commit_sha || inputs.commit_sha }}
           cache-from: |
             type=registry,ref=${{ steps.meta.outputs.tags }}
             type=registry,ref=ghcr.io/${{ github.repository }}:cache
