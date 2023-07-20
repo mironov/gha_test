@@ -43,24 +43,49 @@ jobs:
             
             // parse level from labels
             let level;
+            let urgency;
             context.payload.pull_request.labels.forEach(label => {
               if (label.name.startsWith('level:')) {
                 level = label.name.split(':')[1];
               }
+              if (label.name.startsWith('urgency:')) {
+                urgency = label.name.split(':')[1];
+              }
             });
             
             console.log('Level: ', level);
+            console.log('Urgency: ', urgency);
 
             const nextVersion = semver.inc(latestVersion, level);
             console.log('Next release: ', nextVersion);
 
             core.setOutput('previous_app_version', latestVersion)
             core.setOutput('app_version', nextVersion)
-#  commit_version_file:
-#  ruby -r yaml -r "./lib/app_version_v2.rb" -e "AppVersionV2.increment\!"
+            core.setOutput('level', level)
+            core.setOutput('urgency', urgency)
+  commit_version_file:
+    name: Commit version file
+    needs: determine_app_version
+    runs-on: ubuntu-latest
+    outputs:
+      commit_sha: ${{ steps.commit_version_file.outputs.commit_sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+      - name: Commit version file
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@jane.app"
+          ruby -r yaml -r "./lib/app_version_v2.rb" -e "AppVersionV2.increment\!(urgency: :${{ needs.determine_app_version.outputs.urgency }}, level: :${{ needs.determine_app_version.outputs.level }})"
+          git add version.yaml
+          git commit -m "Bump version to ${{ needs.determine_app_version.outputs.app_version }}"
+          git push
+          echo "::set-output name=commit_sha::$(git rev-parse HEAD)"
   build_and_push_image:
     name: Image
-    needs: determine_app_version
+    needs: [determine_app_version, commit_version_file]
     uses: ./.github/workflows/build-and-push-docker-image.yml
     secrets: inherit
     concurrency:
@@ -68,6 +93,6 @@ jobs:
       cancel-in-progress: true
     with:
       app_version: ${{ needs.determine_app_version.outputs.app_version }}
-      commit_sha: ${{ github.event.pull_request.head.sha }}
+      commit_sha: ${{ needs.commit_version_file.outputs.commit_sha }}
       base_sha: ${{ github.event.pull_request.base.sha }}
       stage: release

@@ -61,7 +61,7 @@ jobs:
       - name: Set Commit Message Environment Variable
         id: env-commit-msg
         run: |
-          MSG=$(git log --no-merges --format=%B -n 1 | tr '\n' ' ') # to make it single-line
+          MSG=$(git log --format=%B -n 1 | tr '\n' ' ') # to make it single-line
           echo "COMMIT_MSG=${MSG}" >> "$GITHUB_ENV"
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
