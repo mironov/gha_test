@@ -27,7 +27,7 @@ on:
         type: string
       pr_number:
         required: false
-        type: number
+        type: string
 
 jobs:
   build_and_push_image:

@@ -120,5 +120,5 @@ jobs:
     with:
       app_version: 1.0.0-smth
       commit_sha: ${{ github.sha }}
-      pr_number: ${{ needs.create_pull_request.outputs.number }}
+      pr_number: "${{ needs.create_pull_request.outputs.number }}"
       stage: rc
