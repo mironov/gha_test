@@ -107,7 +107,10 @@ jobs:
               labels: ['release', `urgency:${urgency}`, `level:${{ github.event.inputs.level }}`],
             });
             
-            // Set outputs about PR
+            console.log(pullRequest);
+            console.log(pullRequest.number);
+            
+            // Set PR outputs
             core.setOutput('pull_request_number', pullRequest.number);
   build_and_push_image:
     name: Image
