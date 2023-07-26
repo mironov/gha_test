@@ -43,7 +43,7 @@ jobs:
             const latestVersion = semver.clean(versionFile[':version'][':current']);
             console.log('Latest release: ', latestVersion);
             
-            // parse level from labels
+            // parse level and urgency from labels
             let level;
             let urgency;
             context.payload.pull_request.labels.forEach(label => {
@@ -84,18 +84,6 @@ jobs:
           ruby -r yaml -r "./lib/app_version_v2.rb" -e "AppVersionV2.increment!(urgency: :${{ needs.determine_app_version.outputs.urgency }}, level: :${{ needs.determine_app_version.outputs.level }})"
           git add version.yaml
           git commit -m "Bump version to ${{ needs.determine_app_version.outputs.app_version }}"
+          git tag -a ${{ needs.determine_app_version.outputs.app_version }} -m "Release ${{ needs.determine_app_version.outputs.app_version }}"
           git push
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-  build_and_push_image:
-    name: Image
-    needs: [determine_app_version, commit_version_file]
-    uses: ./.github/workflows/build-and-push-docker-image.yml
-    secrets: inherit
-    concurrency:
-      group: ${{ github.event.pull_request.head.ref }} # A single build running per branch
-      cancel-in-progress: true
-    with:
-      app_version: ${{ needs.determine_app_version.outputs.app_version }}
-      commit_sha: ${{ needs.commit_version_file.outputs.commit_sha }}
-      base_sha: ${{ github.event.pull_request.base.sha }}
-      stage: release
