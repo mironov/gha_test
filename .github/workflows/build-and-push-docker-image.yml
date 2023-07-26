@@ -25,6 +25,9 @@ on:
         default: rc
         required: false
         type: string
+      pr_number:
+        required: false
+        type: number
 
 jobs:
   build_and_push_image:
@@ -58,7 +61,7 @@ jobs:
             type=schedule,pattern=nightly,enable=true,priority=1000
             type=ref,event=branch,enable=true,priority=600
             type=ref,event=tag,enable=true,priority=600
-            type=raw,event=pr,value=pr-${{ github.event.number }},enable=true,priority=600
+            type=raw,event=pr,value=pr-${{ github.event.number || inputs.pr_number }},enable=true,priority=600
       - name: Set Commit Message Environment Variable
         id: env-commit-msg
         run: |
