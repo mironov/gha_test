@@ -37,7 +37,7 @@ jobs:
     name: Create pull request
     runs-on: ubuntu-latest
     outputs:
-      number: ${{ steps.create_pull_request.outputs.number }}
+      number: ${{ steps.create_pull_request.outputs.pull_request_number }}
     steps:
       - name: Create pull request
         id: create_pull_request
@@ -106,9 +106,6 @@ jobs:
               issue_number: pullRequest.number,
               labels: ['release', `urgency:${urgency}`, `level:${{ github.event.inputs.level }}`],
             });
-            
-            console.log(pullRequest);
-            console.log(pullRequest.number);
             
             // Set PR outputs
             core.setOutput('pull_request_number', pullRequest.number);
