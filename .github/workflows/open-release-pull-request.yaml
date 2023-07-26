@@ -37,6 +37,9 @@ jobs:
     name: Create pull request
     runs-on: ubuntu-latest
     steps:
+      - name: Print context
+        run: |
+          echo ${{ toJson(github) }}
       - name: Create pull request
         id: create_pull_request
         uses: actions/github-script@v6
@@ -107,16 +110,16 @@ jobs:
             
             // Set outputs about PR
             console.log(pullRequest);
-  build_and_push_image:
-    name: Image
-    needs: determine_app_version
-    uses: ./.github/workflows/build-and-push-docker-image.yml
-    secrets: inherit
-    concurrency:
-      group: ${{ github.ref_name }} # A single build running per branch
-      cancel-in-progress: true
-    with:
-      app_version: ${{ needs.determine_app_version.outputs.app_version }}
-      commit_sha: ${{ github.event.pull_request.head.sha }}
-      base_sha: ${{ github.event.pull_request.base.sha }}
-      stage: rc
+#  build_and_push_image:
+#    name: Image
+#    needs: determine_app_version
+#    uses: ./.github/workflows/build-and-push-docker-image.yml
+#    secrets: inherit
+#    concurrency:
+#      group: ${{ github.ref_name }} # A single build running per branch
+#      cancel-in-progress: true
+#    with:
+#      app_version: ${{ needs.determine_app_version.outputs.app_version }}
+#      commit_sha: ${{ github.event.pull_request.head.sha }}
+#      base_sha: ${{ github.event.pull_request.base.sha }}
+#      stage: rc
