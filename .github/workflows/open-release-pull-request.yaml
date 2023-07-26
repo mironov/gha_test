@@ -36,6 +36,8 @@ jobs:
   create_pull_request:
     name: Create pull request
     runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.create_pull_request.outputs.number }}
     steps:
       - name: Create pull request
         id: create_pull_request
@@ -106,7 +108,7 @@ jobs:
             });
             
             // Set outputs about PR
-            console.log(pullRequest);
+            core.setOutput('pull_request_number', pullRequest.number);
   build_and_push_image:
     name: Image
     uses: ./.github/workflows/build-and-push-docker-image.yml
@@ -115,6 +117,7 @@ jobs:
       group: ${{ github.ref_name }} # A single build running per branch
       cancel-in-progress: true
     with:
-      app_version: 1.0-smth
+      app_version: 1.0.0-smth
       commit_sha: ${{ github.sha }}
+      pr_number: ${{ needs.create_pull_request.outputs.number }}
       stage: rc
