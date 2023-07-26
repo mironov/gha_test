@@ -112,6 +112,7 @@ jobs:
   build_and_push_image:
     name: Image
     uses: ./.github/workflows/build-and-push-docker-image.yml
+    needs: create_pull_request
     secrets: inherit
     concurrency:
       group: ${{ github.ref_name }} # A single build running per branch
