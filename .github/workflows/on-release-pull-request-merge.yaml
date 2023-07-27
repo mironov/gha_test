@@ -84,7 +84,26 @@ jobs:
           ruby -r yaml -r "./lib/app_version_v2.rb" -e "AppVersionV2.increment!(urgency: :${{ needs.determine_app_version.outputs.urgency }}, level: :${{ needs.determine_app_version.outputs.level }})"
           git add version.yaml
           git commit -m "Bump version to ${{ needs.determine_app_version.outputs.app_version }}"
-          git tag -a ${{ needs.determine_app_version.outputs.app_version }} -m "Release ${{ needs.determine_app_version.outputs.app_version }}"
+          git tag -a v${{ needs.determine_app_version.outputs.app_version }} -m "Release v${{ needs.determine_app_version.outputs.app_version }}"
           git push --follow-tags
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-#  create_release:
+  create_release:
+    name: Create a release
+    needs: [determine_app_version,commit_version_file]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish release
+        id: publish_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              previous_tag_name: 'v${{ needs.determine_app_version.outputs.previous_app_version }}',
+              tag_name: 'v${{ needs.determine_app_version.outputs.app_version }}',
+              name: 'Release v${{ needs.determine_app_version.outputs.app_version }}',
+              generate_release_notes: true,
+              draft: false,
+              prerelease: false,
+            });
