@@ -85,6 +85,6 @@ jobs:
           git add version.yaml
           git commit -m "Bump version to ${{ needs.determine_app_version.outputs.app_version }}"
           git tag -a ${{ needs.determine_app_version.outputs.app_version }} -m "Release ${{ needs.determine_app_version.outputs.app_version }}"
-          git push
+          git push --follow-tags
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 #  create_release:

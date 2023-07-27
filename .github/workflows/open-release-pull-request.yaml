@@ -31,6 +31,7 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  packages: write
 
 jobs:
   create_pull_request:
