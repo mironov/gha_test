@@ -43,4 +43,3 @@ jobs:
       commit_sha: ${{ github.sha }}
       push_to_production: true
       base_sha: ${{ needs.determine_app_version.outputs.base_sha }}
-      export_cache: false
