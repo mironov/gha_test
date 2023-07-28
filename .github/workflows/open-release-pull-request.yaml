@@ -22,6 +22,7 @@ on:
         required: true
         type: choice
         description: 'Should we notify users to refresh? How urgently?'
+        default: 'No refresh required'
         options:
           - 'Notify users to refresh ASAP ("immediate")'
           - 'Notify users to refresh at their convenience ("unobtrusive")'
@@ -110,16 +111,63 @@ jobs:
             
             // Set PR outputs
             core.setOutput('pull_request_number', pullRequest.number);
-  build_and_push_image:
-    name: Image
-    uses: ./.github/workflows/build-and-push-docker-image.yml
-    needs: create_pull_request
-    secrets: inherit
-    concurrency:
-      group: ${{ github.ref_name }} # A single build running per branch
-      cancel-in-progress: true
-    with:
-      app_version: 1.0.0-smth
-      commit_sha: ${{ github.sha }}
-      pr_number: "${{ needs.create_pull_request.outputs.number }}"
-      stage: rc
+  determine_app_version:
+    name: Determine app version
+    runs-on: ubuntu-latest
+    outputs:
+      app_version: ${{ steps.determine_app_version.outputs.app_version }}
+      previous_app_version: ${{ steps.determine_app_version.outputs.previous_app_version }}
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm install semver
+      - name: Determine app version
+        id: determine_app_version
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          retries: 3
+          script: |
+            const semver = require('semver');
+            
+            const { data: latestRelease } = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const latestVersion = semver.clean(latestRelease.tag_name);
+            console.log('Latest release: ', latestVersion);
+            
+            const short_sha = '${{ github.sha }}'.substring(0, 10);
+          
+            let nextVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
+            nextVersion += `-rc-${short_sha}`;
+            
+            console.log('Next RC version: ', nextVersion);
+            
+            core.setOutput('previous_app_version', latestVersion)
+            core.setOutput('app_version', nextVersion)
+  create_rc:
+    name: Create a release candidate
+    needs: determine_app_version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create an annotated tag
+        id: tag_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: tag } = await github.rest.git.createTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: 'v${{ needs.determine_app_version.outputs.app_version }}',
+              message: 'Release v${{ needs.determine_app_version.outputs.app_version }}',
+              object: context.sha,
+              type: 'commit',
+            });
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/v${{ needs.determine_app_version.outputs.app_version }}',
+              sha: tag.sha,
+            });
