@@ -126,4 +126,4 @@ jobs:
     steps:
       - name: Generate list using Markdown
         run: |
-          echo "Release [v${{ needs.determine_app_version.outputs.app_version }}](https://github.com/mironov/gha_test/releases/v${{ needs.determine_app_version.outputs.app_version }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "Release [v${{ needs.determine_app_version.outputs.app_version }}](https://github.com/${{ github.repository }}/releases/v${{ needs.determine_app_version.outputs.app_version }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
