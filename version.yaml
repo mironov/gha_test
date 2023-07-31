@@ -1,6 +1,6 @@
 ---
 :version:
-  :current: 6.4.0
+  :current: 6.4.1
   :unobtrusive: 6.4.0
-  :immediate: 6.3.4
+  :immediate: 6.4.1
   :minimum: 4.18.252
