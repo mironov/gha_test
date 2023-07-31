@@ -107,3 +107,14 @@ jobs:
               draft: false,
               prerelease: false,
             });
+  build_and_push_image:
+    name: Image
+    needs: [determine_app_version,commit_version_file]
+    uses: ./.github/workflows/build-and-push-docker-image.yml
+    secrets: inherit
+    with:
+      app_version: ${{ needs.determine_app_version.outputs.app_version }}
+      commit_sha: ${{ needs.commit_version_file.outputs.commit_sha }}
+      base_sha: ${{ github.event.pull_request.base.sha }}
+      stage: release
+      push_to_production: true

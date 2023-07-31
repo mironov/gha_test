@@ -25,7 +25,7 @@ on:
         default: rc
         required: false
         type: string
-      pr_number:
+      cache_tag:
         required: false
         type: string
 
@@ -57,7 +57,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           flavor: latest=false
-          tags: type=raw,event=pr,value=pr-${{ github.event.number || inputs.pr_number }},enable=true,priority=600
+          tags: type=raw,value=${{ inputs.cache_tag }},enable=true,priority=600
       - name: Set Commit Message Environment Variable
         id: env-commit-msg
         run: |
@@ -78,9 +78,10 @@ jobs:
             DOCKER_BASE=ruby:latest
             APP_VERSION=${{ inputs.app_version }}
           cache-from: |
-            type=registry,ref=${{ steps.meta.outputs.tags }}
+            ${{ inputs.cache_tag && format('type=registry,ref={0}', steps.meta.outputs.tags) || '' }}
             type=registry,ref=ghcr.io/${{ github.repository }}:cache
-          cache-to: type=registry,ref=${{ steps.meta.outputs.tags }},mode=max
+          cache-to: |
+            ${{ inputs.cache_tag && format('type=registry,ref={0},mode=max', steps.meta.outputs.tags) || '' }}
           labels: |
             ${{ steps.meta.outputs.labels }}
             app.jane.commit.message=${{env.COMMIT_MSG}}

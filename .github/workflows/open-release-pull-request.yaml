@@ -7,7 +7,6 @@ on:
         required: true
         type: choice
         description: 'What version are we bumping to?'
-        default: patch
         options:
           - major
           - minor
@@ -22,7 +21,6 @@ on:
         required: true
         type: choice
         description: 'Should we notify users to refresh? How urgently?'
-        default: 'No refresh required'
         options:
           - 'Notify users to refresh ASAP ("immediate")'
           - 'Notify users to refresh at their convenience ("unobtrusive")'
@@ -147,27 +145,12 @@ jobs:
             
             core.setOutput('previous_app_version', latestVersion)
             core.setOutput('app_version', nextVersion)
-  create_rc:
-    name: Create a release candidate
+  build_and_push_image:
+    name: Image
     needs: determine_app_version
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create an annotated tag
-        id: tag_release
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const { data: tag } = await github.rest.git.createTag({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag: 'v${{ needs.determine_app_version.outputs.app_version }}',
-              message: 'Release v${{ needs.determine_app_version.outputs.app_version }}',
-              object: context.sha,
-              type: 'commit',
-            });
-            await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/v${{ needs.determine_app_version.outputs.app_version }}',
-              sha: tag.sha,
-            });
+    uses: ./.github/workflows/build-and-push-docker-image.yml
+    secrets: inherit
+    with:
+      app_version: ${{ needs.determine_app_version.outputs.app_version }}
+      commit_sha: ${{ github.sha }}
+      push_to_production: true
