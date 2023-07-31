@@ -154,7 +154,7 @@ jobs:
             const bumpedVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
             const nextVersion = `v${bumpedVersion}-rc-${short_sha}`;
             
-            console.log('Next RC version:', nextVersion);
+            console.log('Next release candidate:', nextVersion);
             
             core.setOutput('app_version', nextVersion)
   build_and_push_image:
