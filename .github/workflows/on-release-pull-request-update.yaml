@@ -38,7 +38,7 @@ jobs:
             
             const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
             const latestVersion = semver.clean(versionFile[':version'][':current']);
-            console.log('Latest release: v', latestVersion);
+            console.log(`Latest release: v${latestVersion}`);
             
             const short_sha = context.payload.pull_request.head.sha.substring(0, 11);
             
