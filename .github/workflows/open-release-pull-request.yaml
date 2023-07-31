@@ -40,10 +40,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       pull_request: ${{ steps.create_pull_request.outputs.pull_request }}
-      number: ${{ steps.create_pull_request.outputs.pull_request_number }}
-      head_sha: ${{ steps.create_pull_request.outputs.pull_request_head_sha }}
-      head_ref: ${{ steps.create_pull_request.outputs.pull_request_head_ref }}
-      title: ${{ steps.create_pull_request.outputs.pull_request_title }}
     steps:
       - name: Create pull request
         id: create_pull_request
@@ -129,7 +125,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: ${{ needs.create_pull_request.outputs.head_ref }}
+          ref: ${{ needs.create_pull_request.outputs.pull_request.head.ref }}
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -149,7 +145,7 @@ jobs:
             const latestVersion = semver.clean(versionFile[':version'][':current']);
             console.log('Latest release: ', latestVersion);
             
-            const short_sha = '${{ needs.create_pull_request.outputs.head_sha }}'.substring(0, 11);
+            const short_sha = '${{ needs.create_pull_request.outputs.pull_request.head.sha }}'.substring(0, 11);
           
             let nextVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
             nextVersion += `-rc-${short_sha}`;
@@ -163,12 +159,12 @@ jobs:
     uses: ./.github/workflows/build-and-push-docker-image.yml
     secrets: inherit
     concurrency:
-      group: ${{ needs.create_pull_request.outputs.head_ref }} # A single build running per branch
+      group: ${{ needs.create_pull_request.outputs.pull_request.head.ref }} # A single build running per branch
       cancel-in-progress: true
     with:
       app_version: ${{ needs.determine_app_version.outputs.app_version }}
       commit_sha: ${{ github.sha }}
-      cache_tag: pr-${{ needs.create_pull_request.outputs.number }}
+      cache_tag: pr-${{ needs.create_pull_request.outputs.pull_request.number }}
       push_to_production: true
       stage: rc
   generate_summary:
@@ -178,5 +174,5 @@ jobs:
     steps:
       - name: Generate summary
         run: |
-          echo "Pull Request for [${{ needs.create_pull_request.outputs.title }}](https://github.com/${{ github.repository }}/pull/${{ needs.create_pull_request.outputs.number }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
-          echo "Image tagged **${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
+          echo "Pull Request for [${{ needs.create_pull_request.outputs.pull_request.title }}](https://github.com/${{ github.repository }}/pull/${{ needs.create_pull_request.outputs.pull_request.number }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "Image tagged **v${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
