@@ -40,6 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       number: ${{ steps.create_pull_request.outputs.pull_request_number }}
+      head_ref: ${{ steps.create_pull_request.outputs.pull_request_head_ref }}
     steps:
       - name: Create pull request
         id: create_pull_request
@@ -111,6 +112,7 @@ jobs:
             
             // Set PR outputs
             core.setOutput('pull_request_number', pullRequest.number);
+            core.setOutput('pull_request_head_ref', pullRequest.head.ref);
   determine_app_version:
     name: Determine app version
     runs-on: ubuntu-latest
@@ -152,8 +154,12 @@ jobs:
     needs: [create_pull_request, determine_app_version]
     uses: ./.github/workflows/build-and-push-docker-image.yml
     secrets: inherit
+    concurrency:
+      group: ${{ needs.create_pull_request.outputs.head_ref }} # A single build running per branch
+      cancel-in-progress: true
     with:
       app_version: ${{ needs.determine_app_version.outputs.app_version }}
       commit_sha: ${{ github.sha }}
       cache_tag: pr-${{ needs.create_pull_request.outputs.number }}
       push_to_production: true
+      stage: rc

@@ -119,3 +119,11 @@ jobs:
       cache_tag: pr-${{ github.event.pull_request.number }}
       stage: release
       push_to_production: true
+  generate_summary:
+    name: Generate summary
+    needs: [determine_app_version, commit_version_file, build_and_push_image]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate list using Markdown
+        run: |
+          echo "Release [v${{ needs.determine_app_version.outputs.app_version }}](https://github.com/mironov/gha_test/releases/v${{ needs.determine_app_version.outputs.app_version }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
