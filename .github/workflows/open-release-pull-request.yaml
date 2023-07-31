@@ -41,6 +41,7 @@ jobs:
     outputs:
       number: ${{ steps.create_pull_request.outputs.pull_request_number }}
       head_ref: ${{ steps.create_pull_request.outputs.pull_request_head_ref }}
+      title: ${{ steps.create_pull_request.outputs.pull_request_title }}
     steps:
       - name: Create pull request
         id: create_pull_request
@@ -113,6 +114,7 @@ jobs:
             // Set PR outputs
             core.setOutput('pull_request_number', pullRequest.number);
             core.setOutput('pull_request_head_ref', pullRequest.head.ref);
+            core.setOutput('pull_request_title', pullRequest.title);
   determine_app_version:
     name: Determine app version
     runs-on: ubuntu-latest
@@ -165,9 +167,9 @@ jobs:
       stage: rc
   generate_summary:
     name: Generate summary
-    needs: [create_pull_request]
+    needs: [build_and_push_image, create_pull_request]
     runs-on: ubuntu-latest
     steps:
       - name: Generate summary
         run: |
-          echo "Release [Pull Request](https://github.com/${{ github.repository }}/pull/${{ needs.create_pull_request.outputs.number }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "Pull Request for [${{ needs.create_pull_request.outputs.title }}](https://github.com/${{ github.repository }}/pull/${{ needs.create_pull_request.outputs.number }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
