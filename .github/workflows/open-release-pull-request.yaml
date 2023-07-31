@@ -163,3 +163,11 @@ jobs:
       cache_tag: pr-${{ needs.create_pull_request.outputs.number }}
       push_to_production: true
       stage: rc
+  generate_summary:
+    name: Generate summary
+    needs: [create_pull_request]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate summary
+        run: |
+          echo "Release [Pull Request](https://github.com/${{ github.repository }}/pull/${{ needs.create_pull_request.outputs.number }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY

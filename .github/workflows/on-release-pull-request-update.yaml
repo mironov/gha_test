@@ -5,8 +5,8 @@ on:
     types: [opened, synchronize, reopened, labeled]
 
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read  # This is required for actions/checkout
+  id-token: write
+  contents: read
   packages: write
 
 jobs:
