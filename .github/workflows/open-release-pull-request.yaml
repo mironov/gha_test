@@ -147,8 +147,8 @@ jobs:
             
             const short_sha = '${{ needs.create_pull_request.outputs.pull_request.head.sha }}'.substring(0, 11);
           
-            let nextVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
-            nextVersion += `-rc-${short_sha}`;
+            const bumpedVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
+            const nextVersion = `v${bumpedVersion}-rc-${short_sha}`;
             
             console.log('Next RC version: ', nextVersion);
             
@@ -175,4 +175,4 @@ jobs:
       - name: Generate summary
         run: |
           echo "Pull Request for [${{ needs.create_pull_request.outputs.pull_request.title }}](https://github.com/${{ github.repository }}/pull/${{ needs.create_pull_request.outputs.pull_request.number }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
-          echo "Image tagged **v${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
+          echo "Image tagged **${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
