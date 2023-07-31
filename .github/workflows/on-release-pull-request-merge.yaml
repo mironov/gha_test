@@ -121,7 +121,7 @@ jobs:
       push_to_production: true
   generate_summary:
     name: Generate summary
-    needs: [determine_app_version, create_release]
+    needs: [determine_app_version, build_and_push_image, create_release]
     runs-on: ubuntu-latest
     steps:
       - name: Generate summary
