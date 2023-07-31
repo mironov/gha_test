@@ -121,7 +121,7 @@ jobs:
       push_to_production: true
   generate_summary:
     name: Generate summary
-    needs: [determine_app_version, commit_version_file, build_and_push_image]
+    needs: [determine_app_version, create_release]
     runs-on: ubuntu-latest
     steps:
       - name: Generate list using Markdown
