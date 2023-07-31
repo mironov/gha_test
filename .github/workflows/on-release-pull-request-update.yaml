@@ -37,9 +37,17 @@ jobs:
             const latestVersion = semver.clean(latestRelease.tag_name);
             console.log('Latest release: ', latestVersion);
             
-            const short_sha = '${{ github.sha }}'.substring(0, 11);
+            const short_sha = context.payload.pull_request.head.sha.substring(0, 11);
+            
+            // parse level from labels
+            let level;
+            context.payload.pull_request.labels.forEach(label => {
+              if (label.name.startsWith('level:')) {
+                level = label.name.split(':')[1];
+              }
+            });
           
-            let nextVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
+            let nextVersion = semver.inc(latestVersion, level);
             nextVersion += `-rc-${short_sha}`;
             
             console.log('Next RC version: ', nextVersion);
