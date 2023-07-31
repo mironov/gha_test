@@ -50,12 +50,12 @@ jobs:
               }
             });
             
-            console.log('Level: ', level);
+            console.log('Level:', level);
           
             const bumpedVersion = semver.inc(latestVersion, level);
             const nextVersion = `v${bumpedVersion}-rc-${short_sha}`;
             
-            console.log('Next RC version: ', nextVersion);
+            console.log('Next RC version:', nextVersion);
             
             core.setOutput('app_version', nextVersion)
   build_and_push_image:

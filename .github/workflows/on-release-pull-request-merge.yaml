@@ -54,13 +54,13 @@ jobs:
               }
             });
             
-            console.log('Level: ', level);
-            console.log('Urgency: ', urgency);
+            console.log('Level:', level);
+            console.log('Urgency:', urgency);
 
             const bumpedVersion = semver.inc(latestVersion, level);
             const nextVersion = `v${bumpedVersion}`;
 
-            console.log('Next release: ', nextVersion);
+            console.log('Next release:', nextVersion);
 
             core.setOutput('app_version', nextVersion)
             core.setOutput('level', level)

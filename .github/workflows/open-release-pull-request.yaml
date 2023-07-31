@@ -149,12 +149,12 @@ jobs:
             
             const short_sha = '${{ needs.create_pull_request.outputs.head_sha }}'.substring(0, 11);
             
-            console.log('Level: ', '${{ github.event.inputs.level }}');
+            console.log('Level:', '${{ github.event.inputs.level }}');
           
             const bumpedVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
             const nextVersion = `v${bumpedVersion}-rc-${short_sha}`;
             
-            console.log('Next RC version: ', nextVersion);
+            console.log('Next RC version:', nextVersion);
             
             core.setOutput('app_version', nextVersion)
   build_and_push_image:
