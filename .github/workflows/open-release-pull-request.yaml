@@ -173,4 +173,4 @@ jobs:
       - name: Generate summary
         run: |
           echo "Pull Request for [${{ needs.create_pull_request.outputs.title }}](https://github.com/${{ github.repository }}/pull/${{ needs.create_pull_request.outputs.number }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
-          echo "Image *${{ needs.determine_app_version.outputs.app_version }}* has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
+          echo "Image **${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY

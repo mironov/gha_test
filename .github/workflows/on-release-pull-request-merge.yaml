@@ -127,4 +127,4 @@ jobs:
       - name: Generate summary
         run: |
           echo "Release [v${{ needs.determine_app_version.outputs.app_version }}](https://github.com/${{ github.repository }}/releases/v${{ needs.determine_app_version.outputs.app_version }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
-          echo "Image *${{ needs.determine_app_version.outputs.app_version }}* has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
+          echo "Image **${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
