@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       app_version: ${{ steps.determine_app_version.outputs.app_version }}
-      previous_app_version: ${{ steps.determine_app_version.outputs.previous_app_version }}
       level: ${{ steps.determine_app_version.outputs.level }}
       urgency: ${{ steps.determine_app_version.outputs.urgency }}
     steps:
@@ -61,7 +60,6 @@ jobs:
             const nextVersion = semver.inc(latestVersion, level);
             console.log('Next release: ', nextVersion);
 
-            core.setOutput('previous_app_version', latestVersion)
             core.setOutput('app_version', nextVersion)
             core.setOutput('level', level)
             core.setOutput('urgency', urgency)
@@ -100,7 +98,6 @@ jobs:
             await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              previous_tag_name: 'v${{ needs.determine_app_version.outputs.previous_app_version }}',
               tag_name: 'v${{ needs.determine_app_version.outputs.app_version }}',
               name: 'Release v${{ needs.determine_app_version.outputs.app_version }}',
               generate_release_notes: true,

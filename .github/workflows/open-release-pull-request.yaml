@@ -39,7 +39,9 @@ jobs:
     name: Create pull request
     runs-on: ubuntu-latest
     outputs:
+      pull_request: ${{ steps.create_pull_request.outputs.pull_request }}
       number: ${{ steps.create_pull_request.outputs.pull_request_number }}
+      head_sha: ${{ steps.create_pull_request.outputs.pull_request_head_sha }}
       head_ref: ${{ steps.create_pull_request.outputs.pull_request_head_ref }}
       title: ${{ steps.create_pull_request.outputs.pull_request_title }}
     steps:
@@ -112,20 +114,26 @@ jobs:
             });
             
             // Set PR outputs
+            core.setOutput('pull_request', pullRequest);
             core.setOutput('pull_request_number', pullRequest.number);
+            core.setOutput('pull_request_head_sha', pullRequest.head.sha);
             core.setOutput('pull_request_head_ref', pullRequest.head.ref);
             core.setOutput('pull_request_title', pullRequest.title);
   determine_app_version:
     name: Determine app version
     runs-on: ubuntu-latest
+    needs: create_pull_request
     outputs:
       app_version: ${{ steps.determine_app_version.outputs.app_version }}
-      previous_app_version: ${{ steps.determine_app_version.outputs.previous_app_version }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.create_pull_request.outputs.head_ref }}
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: npm install semver
+      - run: npm install semver js-yaml
       - name: Determine app version
         id: determine_app_version
         uses: actions/github-script@v6
@@ -134,22 +142,20 @@ jobs:
           retries: 3
           script: |
             const semver = require('semver');
+            const yaml = require('js-yaml');
+            const fs = require('fs');
             
-            const { data: latestRelease } = await github.rest.repos.getLatestRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            const latestVersion = semver.clean(latestRelease.tag_name);
+            const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
+            const latestVersion = semver.clean(versionFile[':version'][':current']);
             console.log('Latest release: ', latestVersion);
             
-            const short_sha = '${{ github.sha }}'.substring(0, 11);
+            const short_sha = '${{ needs.create_pull_request.outputs.head_sha }}'.substring(0, 11);
           
             let nextVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
             nextVersion += `-rc-${short_sha}`;
             
             console.log('Next RC version: ', nextVersion);
             
-            core.setOutput('previous_app_version', latestVersion)
             core.setOutput('app_version', nextVersion)
   build_and_push_image:
     name: Image
