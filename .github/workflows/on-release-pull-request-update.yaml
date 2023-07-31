@@ -38,7 +38,7 @@ jobs:
             
             const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
             const latestVersion = semver.clean(versionFile[':version'][':current']);
-            console.log('Latest release: v', latestVersion);
+            console.log(`Latest release: v${latestVersion}`);
             
             const short_sha = context.payload.pull_request.head.sha.substring(0, 11);
             
@@ -50,12 +50,12 @@ jobs:
               }
             });
             
-            console.log('Level: ', level);
+            console.log('Level:', level);
           
             const bumpedVersion = semver.inc(latestVersion, level);
             const nextVersion = `v${bumpedVersion}-rc-${short_sha}`;
             
-            console.log('Next RC version: ', nextVersion);
+            console.log('Next RC version:', nextVersion);
             
             core.setOutput('app_version', nextVersion)
   build_and_push_image:

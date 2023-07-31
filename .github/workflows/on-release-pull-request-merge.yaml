@@ -40,7 +40,7 @@ jobs:
             
             const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
             const latestVersion = semver.clean(versionFile[':version'][':current']);
-            console.log('Latest release: v', latestVersion);
+            console.log(`Latest release: v${latestVersion}`);
             
             // parse level and urgency from labels
             let level;
@@ -54,13 +54,13 @@ jobs:
               }
             });
             
-            console.log('Level: ', level);
-            console.log('Urgency: ', urgency);
+            console.log('Level:', level);
+            console.log('Urgency:', urgency);
 
             const bumpedVersion = semver.inc(latestVersion, level);
             const nextVersion = `v${bumpedVersion}`;
 
-            console.log('Next release: ', nextVersion);
+            console.log('Next release:', nextVersion);
 
             core.setOutput('app_version', nextVersion)
             core.setOutput('level', level)
