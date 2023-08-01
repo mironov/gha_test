@@ -89,7 +89,7 @@ jobs:
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
   create_release:
     name: Create a release
-    needs: [determine_app_version,commit_version_file]
+    needs: [determine_app_version, commit_version_file]
     runs-on: ubuntu-latest
     steps:
       - name: Publish release
