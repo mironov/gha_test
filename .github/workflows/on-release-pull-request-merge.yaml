@@ -79,8 +79,8 @@ jobs:
       - name: Commit version file
         id: commit_version_file
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "github-actions@jane.app"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           ruby -r yaml -r "./lib/app_version_v2.rb" -e "AppVersionV2.increment!(urgency: :${{ needs.determine_app_version.outputs.urgency }}, level: :${{ needs.determine_app_version.outputs.level }})"
           git add version.yaml
           git commit -m "Bump version to ${{ needs.determine_app_version.outputs.app_version }}"
