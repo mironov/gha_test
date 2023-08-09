@@ -27,7 +27,7 @@ jobs:
       - run: npm install semver js-yaml
       - name: Determine app version
         id: determine_app_version
-        run: ./scripts/determine_app_version.js
+        run: ./.github/workflows/scripts/determine_app_version.js
   build_and_push_image:
     name: Image
     needs: determine_app_version
