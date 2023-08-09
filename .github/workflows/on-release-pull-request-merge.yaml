@@ -29,42 +29,7 @@ jobs:
       - run: npm install semver js-yaml
       - name: Determine app version
         id: determine_app_version
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          retries: 3
-          script: |
-            const semver = require('semver');
-            const yaml = require('js-yaml');
-            const fs = require('fs');
-            
-            const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
-            const latestVersion = semver.clean(versionFile[':version'][':current']);
-            console.log(`Latest release: v${latestVersion}`);
-            
-            // parse level and urgency from labels
-            let level;
-            let urgency;
-            context.payload.pull_request.labels.forEach(label => {
-              if (label.name.startsWith('level:')) {
-                level = label.name.split(':')[1];
-              }
-              if (label.name.startsWith('urgency:')) {
-                urgency = label.name.split(':')[1];
-              }
-            });
-            
-            console.log('Level:', level);
-            console.log('Urgency:', urgency);
-
-            const bumpedVersion = semver.inc(latestVersion, level);
-            const nextVersion = `v${bumpedVersion}`;
-
-            console.log('Next release:', nextVersion);
-
-            core.setOutput('app_version', nextVersion)
-            core.setOutput('level', level)
-            core.setOutput('urgency', urgency)
+        run: ./script/determine_app_version.js --release
   commit_version_file:
     name: Commit version file
     needs: determine_app_version
