@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: npm install semver js-yaml @actions/core
+      - run: npm install semver js-yaml @actions/core @actions/github
       - name: Determine app version
         id: determine_app_version
         run: |
