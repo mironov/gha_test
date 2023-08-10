@@ -34,6 +34,7 @@ export const validateInputs = async (level, urgency) => {
   }
 
   // Exit if PR already exists
+  const octokit = getOctokit(process.env.GITHUB_TOKEN);
   const { data: pullRequests } = await octokit.rest.pulls.list({
     owner: context.repo.owner,
     repo: context.repo.repo,
