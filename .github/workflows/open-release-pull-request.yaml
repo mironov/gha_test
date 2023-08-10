@@ -46,77 +46,12 @@ jobs:
     steps:
       - name: Create pull request
         id: create_pull_request
-        uses: actions/github-script@v6
-        with:
-          script: |
-            // Exit if not a release branch
-            if (!'${{ github.ref_name }}'.startsWith('release-')) {
-              core.setFailed('Not a release branch');
-              return;
-            }
-            
-            // Exit if PR already exists
-            const { data: pullRequests } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: '${{ github.ref_name }}',
-              base: 'main',
-              state: 'open',
-            });
-            
-            if (pullRequests.length > 0) {
-              core.setFailed('Pull request for this release already exists');
-              return;
-            }
-            
-            // Parse urgency
-            const notifyUsersToRefresh = '${{ github.event.inputs.notify_users_to_refresh }}';
-            const notifyUsersToRefreshMap = {
-              'Notify users to refresh ASAP ("immediate")': 'immediate',
-              'Notify users to refresh at their convenience ("unobtrusive")': 'unobtrusive',
-              'No refresh required': 'none',
-            };
-            const urgency = notifyUsersToRefreshMap[notifyUsersToRefresh];
-            
-            const capitalize = (string) => {
-              return string.charAt(0).toUpperCase() + string.slice(1);
-            };
-            
-            let title = `${capitalize('${{ github.event.inputs.level }}')} Release`;
-            if ('${{ github.event.inputs.release_name }}' !== '') {
-              title += ' - ${{ github.event.inputs.release_name }}';
-            }
-            
-            let body = `The refresh requirement is set to **${urgency}**.\n\n`;
-            if ('${{ github.event.inputs.release_notes_url }}' !== '') {
-                body += 'Please see the release notes for more information.\n' +
-                        'Release notes: ${{ github.event.inputs.release_notes_url }}\n\n';
-            }
-            body += 'Deployer: @${{ github.actor }}';
-            
-            // Create a pull request
-            const { data: pullRequest } = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              head: '${{ github.ref_name }}',
-              base: 'main',
-              body: body,
-            });
-            
-            // Add labels to the pull request
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pullRequest.number,
-              labels: ['release', `urgency:${urgency}`, `level:${{ github.event.inputs.level }}`],
-            });
-            
-            // Set PR outputs
-            core.setOutput('pull_request_number', pullRequest.number);
-            core.setOutput('pull_request_head_sha', pullRequest.head.sha);
-            core.setOutput('pull_request_head_ref', pullRequest.head.ref);
-            core.setOutput('pull_request_title', pullRequest.title);
+        run: |
+          ./.github/workflows/scripts/create_release_pull_request.mjs \
+            --level ${{ github.event.inputs.level }} \
+            --release-name ${{ github.event.inputs.release_name }} \
+            --release-notes-url ${{ github.event.inputs.release_notes_url }} \
+            --notify-users-to-refresh ${{ github.event.inputs.notify_users_to_refresh }}
   determine_app_version:
     name: Determine app version
     runs-on: ubuntu-latest

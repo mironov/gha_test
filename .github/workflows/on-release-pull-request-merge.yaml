@@ -29,7 +29,7 @@ jobs:
       - run: npm install semver js-yaml @actions/core @actions/github
       - name: Parse level and urgency
         id: parse_level_and_urgency
-        run: ./.github/workflows/scripts/parse_pr_level_and_urgency.mjs
+        run: ./.github/workflows/scripts/parse_pull_request_level_and_urgency.mjs
       - name: Determine app version
         id: determine_app_version
         run: |
