@@ -51,7 +51,7 @@ jobs:
             --level ${{ github.event.inputs.level }} \
             --release-name ${{ github.event.inputs.release_name }} \
             --release-notes-url ${{ github.event.inputs.release_notes_url }} \
-            --notify-users-to-refresh ${{ github.event.inputs.notify_users_to_refresh }}
+            --notify-users-to-refresh '${{ github.event.inputs.notify_users_to_refresh }}'
   determine_app_version:
     name: Determine app version
     runs-on: ubuntu-latest
