@@ -7,7 +7,7 @@ import yaml from 'js-yaml';
 import * as core from '@actions/core';
 
 const {
-  values,
+  values: input,
 } = parseArgs({
   options: {
     'level': {
@@ -21,9 +21,6 @@ const {
     },
   },
 });
-
-console.log(values);
-const { level, commitSha, release } = values;
 
 const parseLatestVersion = () => {
   const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
@@ -51,8 +48,6 @@ const determineNextVersion = (latestVersion, level, release, sha) => {
 
 
 const latestVersion = parseLatestVersion();
-const nextVersion = determineNextVersion(latestVersion, level, release, commitSha);
+const nextVersion = determineNextVersion(latestVersion, input['level'], input['release'], input['commit-sha']);
 
 core.setOutput('app_version', nextVersion);
-core.setOutput('level', level);
-core.setOutput('urgency', urgency);
