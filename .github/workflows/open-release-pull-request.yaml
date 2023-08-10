@@ -51,7 +51,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: npm install @actions/core @actions/github
+      - run: npm install semver js-yaml @actions/core @actions/github
       - name: Create pull request
         id: create_pull_request
         env:
