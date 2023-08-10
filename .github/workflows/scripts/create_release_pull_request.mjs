@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import * as core from '@actions/core';
-import { context, getOctokit } from '@actions/github';
 import { parseArgs } from 'node:util';
+
+import { getUrgencyFromInput, validateLevelAndUrgency, validatePullRequest, createPullRequest } from './_release_utils.mjs';
 
 const {
   values: input,
@@ -23,69 +24,13 @@ const {
   },
 });
 
-const octokit = getOctokit(process.env.GITHUB_TOKEN);
+const level = input['level'];
+const urgency = getUrgencyFromInput(input['notify-users-to-refresh']);
 
-// Exit if not a release branch
-if (!process.env.GITHUB_REF_NAME.startsWith('release-')) {
-  core.setFailed('Not a release branch');
-  return;
-}
+validateLevelAndUrgency(level, urgency);
+await validatePullRequest(level, urgency);
 
-// Exit if PR already exists
-const { data: pullRequests } = await octokit.rest.pulls.list({
-  owner: context.repo.owner,
-  repo: context.repo.repo,
-  head: process.env.GITHUB_REF_NAME,
-  base: 'main',
-  state: 'open',
-});
-
-if (pullRequests.length > 0) {
-  core.setFailed('Pull request for this release already exists');
-  return;
-}
-
-// Parse urgency
-const notifyUsersToRefreshMap = {
-  'Notify users to refresh ASAP ("immediate")': 'immediate',
-  'Notify users to refresh at their convenience ("unobtrusive")': 'unobtrusive',
-  'No refresh required': 'none',
-};
-const urgency = notifyUsersToRefreshMap[input['notify-users-to-refresh']];
-
-const capitalize = (string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-};
-
-let title = `${capitalize(input['level'])} Release`;
-if (input['release-name'] !== '') {
-  title += ` - ${input['release-name']}`;
-}
-
-let body = `The refresh requirement is set to **${urgency}**.\n\n`;
-if (input['release-notes-url'] !== '') {
-    body += 'Please see the release notes for more information.\n' +
-            `Release notes: ${input['release-notes-url']}\n\n`;
-}
-body += `Deployer: @${context.actor}`;
-
-// Create a pull request
-const { data: pullRequest } = await octokit.rest.pulls.create({
-  owner: context.repo.owner,
-  repo: context.repo.repo,
-  title: title,
-  head: process.env.GITHUB_REF_NAME,
-  base: 'main',
-  body: body,
-});
-
-// Add labels to the pull request
-await octokit.rest.issues.addLabels({
-  owner: context.repo.owner,
-  repo: context.repo.repo,
-  issue_number: pullRequest.number,
-  labels: ['release', `urgency:${urgency}`, `level:${input['level']}`],
-});
+const pullRequest = await createPullRequest(level, urgency, input['release-name'], input['release-notes-url']);
 
 // Set PR outputs
 core.setOutput('pull_request_number', pullRequest.number);

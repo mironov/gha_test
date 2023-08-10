@@ -3,6 +3,8 @@
 import * as core from '@actions/core';
 import { context } from '@actions/github';
 
+import { validateLevelAndUrgency } from "./_release_utils.mjs";
+
 let level;
 let urgency;
 
@@ -15,14 +17,7 @@ context.payload.pull_request.labels.forEach(label => {
   }
 });
 
-if (!['major', 'minor', 'patch'].includes(level)) {
-  core.setFailed(`Invalid level: ${level}`);
-  return;
-}
-if (!['immediate', 'unobtrusive', 'none'].includes(urgency)) {
-  core.setFailed(`Invalid urgency: ${urgency}`);
-  return;
-}
+validateLevelAndUrgency(level, urgency);
 
 console.log('Level:', level);
 console.log('Urgency:', urgency);
