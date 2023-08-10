@@ -3,7 +3,7 @@
 import * as core from '@actions/core';
 import { parseArgs } from 'node:util';
 
-import { parseUrgency, validateInputs, createPullRequest } from './_release_utils.mjs';
+import { parseUrgency, validateLevelAndUrgency, validatePullRequest, createPullRequest } from './_release_utils.mjs';
 
 const {
   values: input,
@@ -27,7 +27,8 @@ const {
 const level = input['level'];
 const urgency = parseUrgency(input['notify-users-to-refresh']);
 
-await validateInputs(level, urgency);
+validateLevelAndUrgency(level, urgency);
+await validatePullRequest(level, urgency);
 
 const pullRequest = await createPullRequest(level, urgency, input['release-name'], input['release-notes-url']);
 

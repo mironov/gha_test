@@ -1,3 +1,6 @@
+import fs from 'fs';
+import semver from 'semver';
+import yaml from 'js-yaml';
 import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 import process from 'node:process';
@@ -16,7 +19,7 @@ export const capitalize = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export const validateInputs = async (level, urgency) => {
+export const validateLevelAndUrgency = (level, urgency) => {
   if (!['major', 'minor', 'patch'].includes(level)) {
     core.setFailed(`Invalid level: ${level}`);
     process.exit(1);
@@ -26,7 +29,9 @@ export const validateInputs = async (level, urgency) => {
     core.setFailed(`Invalid urgency: ${urgency}`);
     process.exit(1);
   }
+}
 
+export const validatePullRequest = async () => {
   // Exit if not a release branch
   if (!process.env.GITHUB_REF_NAME.startsWith('release-')) {
     core.setFailed('Not a release branch');
@@ -95,4 +100,28 @@ export const createPullRequest = async (level, urgency, releaseName, releaseNote
   });
 
   return pullRequest;
+}
+
+export const parseLatestVersion = () => {
+  const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
+  const latestVersion = semver.clean(versionFile[':version'][':current']);
+
+  console.log(`Latest release: v${latestVersion}`);
+
+  return latestVersion;
+}
+
+export const determineNextVersion = (latestVersion, level, release, sha) => {
+  const bumpedVersion = semver.inc(latestVersion, level);
+  let nextVersion;
+  if (release) {
+    nextVersion = `v${bumpedVersion}`;
+  } else {
+    const short_sha = sha.substring(0, 11);
+    nextVersion = `v${bumpedVersion}-rc-${short_sha}`;
+  }
+
+  console.log('Next release:', nextVersion);
+
+  return nextVersion;
 }
