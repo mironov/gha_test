@@ -23,7 +23,7 @@ const {
   },
 });
 
-console.log(process.env);
+console.log(input);
 
 const octokit = getOctokit(process.env.GITHUB_TOKEN);
 
