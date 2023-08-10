@@ -5,16 +5,6 @@ import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 import process from 'node:process';
 
-export const parseUrgency = (urgencyInput) => {
-  const notifyUsersToRefreshMap = {
-    'Notify users to refresh ASAP ("immediate")': 'immediate',
-    'Notify users to refresh at their convenience ("unobtrusive")': 'unobtrusive',
-    'No refresh required': 'none',
-  };
-
-  return notifyUsersToRefreshMap[urgencyInput];
-}
-
 export const capitalize = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -52,6 +42,16 @@ export const validatePullRequest = async () => {
     core.setFailed('Pull request for this release already exists');
     process.exit(1);
   }
+}
+
+export const getUrgencyFromInput = (urgnecy) => {
+  const notifyUsersToRefreshMap = {
+    'Notify users to refresh ASAP ("immediate")': 'immediate',
+    'Notify users to refresh at their convenience ("unobtrusive")': 'unobtrusive',
+    'No refresh required': 'none',
+  };
+
+  return notifyUsersToRefreshMap[urgnecy];
 }
 
 export const constructTitle = (level, releaseName) => {

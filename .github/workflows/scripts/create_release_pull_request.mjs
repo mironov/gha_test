@@ -3,7 +3,7 @@
 import * as core from '@actions/core';
 import { parseArgs } from 'node:util';
 
-import { parseUrgency, validateLevelAndUrgency, validatePullRequest, createPullRequest } from './_release_utils.mjs';
+import { getUrgencyFromInput, validateLevelAndUrgency, validatePullRequest, createPullRequest } from './_release_utils.mjs';
 
 const {
   values: input,
@@ -25,7 +25,7 @@ const {
 });
 
 const level = input['level'];
-const urgency = parseUrgency(input['notify-users-to-refresh']);
+const urgency = getUrgencyFromInput(input['notify-users-to-refresh']);
 
 validateLevelAndUrgency(level, urgency);
 await validatePullRequest(level, urgency);
