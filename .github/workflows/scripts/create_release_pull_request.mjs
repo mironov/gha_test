@@ -23,6 +23,8 @@ const {
   },
 });
 
+console.log(process.env);
+
 const octokit = getOctokit(process.env.GITHUB_TOKEN);
 
 // Exit if not a release branch
