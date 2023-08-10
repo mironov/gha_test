@@ -46,7 +46,6 @@ const determineNextVersion = (latestVersion, level, release, sha) => {
   return nextVersion;
 }
 
-
 const latestVersion = parseLatestVersion();
 const nextVersion = determineNextVersion(latestVersion, input['level'], input['release'], input['commit-sha']);
 
