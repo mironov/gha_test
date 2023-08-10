@@ -88,7 +88,7 @@ export const createPullRequest = async (level, urgency, releaseName, releaseNote
     base: 'main',
     title: title,
     body: body,
-    draft: true,
+    draft: false,
   });
 
   // Add labels to the pull request as it can't be done in the create call
