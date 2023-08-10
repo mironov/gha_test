@@ -20,6 +20,7 @@ if (!['major', 'minor', 'patch'].includes(level)) {
   core.setFailed(`Invalid level: ${level}`);
   process.exit(1);
 }
+
 if (!['immediate', 'unobtrusive', 'none'].includes(urgency)) {
   core.setFailed(`Invalid urgency: ${urgency}`);
   process.exit(1);
