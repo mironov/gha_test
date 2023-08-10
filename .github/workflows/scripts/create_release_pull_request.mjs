@@ -28,7 +28,6 @@ const octokit = getOctokit(process.env.GITHUB_TOKEN);
 // Exit if not a release branch
 if (!process.env.GITHUB_REF_NAME.startsWith('release-')) {
   core.setFailed('Not a release branch');
-  return;
 }
 
 // Exit if PR already exists
@@ -42,7 +41,6 @@ const { data: pullRequests } = await octokit.rest.pulls.list({
 
 if (pullRequests.length > 0) {
   core.setFailed('Pull request for this release already exists');
-  return;
 }
 
 // Parse urgency
