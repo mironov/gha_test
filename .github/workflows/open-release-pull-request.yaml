@@ -134,29 +134,10 @@ jobs:
       - run: npm install semver js-yaml
       - name: Determine app version
         id: determine_app_version
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          retries: 3
-          script: |
-            const semver = require('semver');
-            const yaml = require('js-yaml');
-            const fs = require('fs');
-            
-            const versionFile = yaml.load(fs.readFileSync('version.yaml', 'utf8'));
-            const latestVersion = semver.clean(versionFile[':version'][':current']);
-            console.log(`Latest release: v${latestVersion}`);
-            
-            const short_sha = '${{ needs.create_pull_request.outputs.head_sha }}'.substring(0, 11);
-            
-            console.log('Level:', '${{ github.event.inputs.level }}');
-          
-            const bumpedVersion = semver.inc(latestVersion, '${{ github.event.inputs.level }}');
-            const nextVersion = `v${bumpedVersion}-rc-${short_sha}`;
-            
-            console.log('Next release candidate:', nextVersion);
-            
-            core.setOutput('app_version', nextVersion)
+        run: |
+          ./.github/workflows/scripts/determine_app_version.mjs \
+            --level ${{ github.event.inputs.level }} \
+            --commit-sha ${{ needs.create_pull_request.outputs.head_sha }}
   build_and_push_image:
     name: Image
     needs: [create_pull_request, determine_app_version]

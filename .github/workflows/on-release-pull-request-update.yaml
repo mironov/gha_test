@@ -24,10 +24,16 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: npm install semver js-yaml
+      - run: npm install semver js-yaml @actions/core @actions/github
+      - name: Parse level and urgency
+        id: parse_level_and_urgency
+        run: ./.github/workflows/scripts/parse_pr_level_and_urgency.mjs
       - name: Determine app version
         id: determine_app_version
-        run: ./script/determine_app_version.js
+        run: |
+          ./.github/workflows/scripts/determine_app_version.mjs \
+            --level ${{ steps.parse_level_and_urgency.outputs.level }} \
+            --commit-sha ${{ github.event.pull_request.head.sha }}
   build_and_push_image:
     name: Image
     needs: determine_app_version
