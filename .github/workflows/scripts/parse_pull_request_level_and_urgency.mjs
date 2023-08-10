@@ -2,6 +2,7 @@
 
 import * as core from '@actions/core';
 import { context } from '@actions/github';
+import process from 'node:process';
 
 let level;
 let urgency;
@@ -17,11 +18,11 @@ context.payload.pull_request.labels.forEach(label => {
 
 if (!['major', 'minor', 'patch'].includes(level)) {
   core.setFailed(`Invalid level: ${level}`);
-  return;
+  process.exit(1);
 }
 if (!['immediate', 'unobtrusive', 'none'].includes(urgency)) {
   core.setFailed(`Invalid urgency: ${urgency}`);
-  return;
+  process.exit(1);
 }
 
 console.log('Level:', level);

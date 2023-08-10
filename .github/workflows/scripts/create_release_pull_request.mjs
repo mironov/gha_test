@@ -3,6 +3,7 @@
 import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 import { parseArgs } from 'node:util';
+import process from 'node:process';
 
 const {
   values: input,
@@ -30,6 +31,7 @@ const octokit = getOctokit(process.env.GITHUB_TOKEN);
 // Exit if not a release branch
 if (!process.env.GITHUB_REF_NAME.startsWith('release-')) {
   core.setFailed('Not a release branch');
+  process.exit(1);
 }
 
 // Exit if PR already exists
@@ -43,6 +45,7 @@ const { data: pullRequests } = await octokit.rest.pulls.list({
 
 if (pullRequests.length > 0) {
   core.setFailed('Pull request for this release already exists');
+  process.exit(1);
 }
 
 // Parse urgency
