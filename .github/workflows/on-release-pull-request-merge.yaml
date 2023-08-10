@@ -27,9 +27,15 @@ jobs:
         with:
           node-version: 18
       - run: npm install semver js-yaml @actions/core @actions/github
+      - name: Parse level and urgency
+        id: parse_level_and_urgency
+        run: ./.github/workflows/scripts/parse_pr_level_and_urgency.mjs
       - name: Determine app version
         id: determine_app_version
-        run: ./.github/workflows/scripts/determine_app_version.mjs --release
+        run: |
+          ./.github/workflows/scripts/determine_app_version.mjs \
+            --level ${{ steps.parse_level_and_urgency.outputs.level }} \
+            --release
   commit_version_file:
     name: Commit version file
     needs: determine_app_version
