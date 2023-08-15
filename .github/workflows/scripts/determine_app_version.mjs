@@ -1,27 +1,30 @@
 #!/usr/bin/env node
 
-import { parseArgs } from 'node:util';
-import * as core from '@actions/core';
+import * as core from '@actions/core'
+import { parseArgs } from 'node:util'
 
-import { parseLatestVersion, determineNextVersion } from './_release_utils.mjs';
+import { determineNextVersion, parseLatestVersion } from './lib/utils.mjs'
 
-const {
-  values: input,
-} = parseArgs({
+const { values: input } = parseArgs({
   options: {
-    'level': {
+    level: {
       type: 'string',
     },
     'commit-sha': {
       type: 'string',
     },
-    'release': {
+    release: {
       type: 'boolean',
     },
   },
-});
+})
 
-const latestVersion = parseLatestVersion();
-const nextVersion = determineNextVersion(latestVersion, input['level'], input['release'], input['commit-sha']);
+const latestVersion = parseLatestVersion()
+const nextVersion = determineNextVersion(
+  latestVersion,
+  input['level'],
+  input['release'],
+  input['commit-sha']
+)
 
-core.setOutput('app_version', nextVersion);
+core.setOutput('app_version', nextVersion)
