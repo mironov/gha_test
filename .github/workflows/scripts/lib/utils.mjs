@@ -21,9 +21,9 @@ export const validateLevelAndUrgency = (level, urgency) => {
   }
 }
 
-export const validatePullRequest = async () => {
+export const validatePullRequestCanBeCreated = async (refName) => {
   // Exit if not a release branch
-  if (!process.env.GITHUB_REF_NAME.startsWith('release-')) {
+  if (!refName.startsWith('release-')) {
     core.setFailed('Not a release branch')
     process.exit(1)
   }
@@ -33,7 +33,7 @@ export const validatePullRequest = async () => {
   const { data: pullRequests } = await octokit.rest.pulls.list({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    head: process.env.GITHUB_REF_NAME,
+    head: refName,
     base: 'main',
     state: 'open',
   })

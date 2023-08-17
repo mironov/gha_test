@@ -2,12 +2,13 @@
 
 import * as core from '@actions/core'
 import { parseArgs } from 'node:util'
+import process from 'node:process'
 
 import {
   createPullRequest,
   getUrgencyFromInput,
   validateLevelAndUrgency,
-  validatePullRequest,
+  validatePullRequestCanBeCreated,
 } from './lib/utils.mjs'
 
 const { values: input } = parseArgs({
@@ -31,7 +32,7 @@ const level = input['level']
 const urgency = getUrgencyFromInput(input['notify-users-to-refresh'])
 
 validateLevelAndUrgency(level, urgency)
-await validatePullRequest(level, urgency)
+await validatePullRequestCanBeCreated(process.env.GITHUB_REF_NAME)
 
 const pullRequest = await createPullRequest(
   level,
