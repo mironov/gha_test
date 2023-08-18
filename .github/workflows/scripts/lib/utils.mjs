@@ -122,13 +122,13 @@ export const determineNextVersion = (latestVersion, level, release, sha) => {
   const bumpedVersion = semver.inc(latestVersion, level)
   let nextVersion
   if (release) {
-    nextVersion = `v${bumpedVersion}`
+    nextVersion = bumpedVersion
   } else {
     const short_sha = sha.substring(0, 11)
-    nextVersion = `v${bumpedVersion}-rc-${short_sha}`
+    nextVersion = `${bumpedVersion}-rc-${short_sha}`
   }
 
-  console.log('Next release:', nextVersion)
+  console.log(`Next release: v${nextVersion}`)
 
   return nextVersion
 }
