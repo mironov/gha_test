@@ -53,9 +53,10 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           ruby -r yaml -r "./lib/app_version_v2.rb" -e "AppVersionV2.increment!(urgency: :${{ needs.determine_app_version.outputs.urgency }}, level: :${{ needs.determine_app_version.outputs.level }})"
+          grep ":current: ${{ needs.determine_app_version.outputs.app_version }}" version.yaml || exit 1
           git add version.yaml
-          git commit -m "Bump version to ${{ needs.determine_app_version.outputs.app_version }}"
-          git tag -a ${{ needs.determine_app_version.outputs.app_version }} -m "Release ${{ needs.determine_app_version.outputs.app_version }}"
+          git commit -m "Bump version to v${{ needs.determine_app_version.outputs.app_version }}"
+          git tag -a v${{ needs.determine_app_version.outputs.app_version }} -m "Release v${{ needs.determine_app_version.outputs.app_version }}"
           git push --follow-tags
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
   create_release:
@@ -71,8 +72,8 @@ jobs:
             await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: '${{ needs.determine_app_version.outputs.app_version }}',
-              name: 'Release ${{ needs.determine_app_version.outputs.app_version }}',
+              tag_name: 'v${{ needs.determine_app_version.outputs.app_version }}',
+              name: 'Release v${{ needs.determine_app_version.outputs.app_version }}',
               generate_release_notes: true,
               draft: false,
               prerelease: false,
@@ -83,11 +84,11 @@ jobs:
     uses: ./.github/workflows/build-and-push-docker-image.yml
     secrets: inherit
     with:
-      app_version: ${{ needs.determine_app_version.outputs.app_version }}
+      app_version: v${{ needs.determine_app_version.outputs.app_version }}
       commit_sha: ${{ needs.commit_version_file.outputs.commit_sha }}
       base_sha: ${{ github.event.pull_request.base.sha }}
       cache_tag: pr-${{ github.event.pull_request.number }}
-      stage: release
+      target: release
       push_to_production: true
   generate_summary:
     name: Generate summary
@@ -96,5 +97,5 @@ jobs:
     steps:
       - name: Generate summary
         run: |
-          echo "Release [${{ needs.determine_app_version.outputs.app_version }}](https://github.com/${{ github.repository }}/releases/${{ needs.determine_app_version.outputs.app_version }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
-          echo "Image tagged **${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
+          echo "Release [v${{ needs.determine_app_version.outputs.app_version }}](https://github.com/${{ github.repository }}/releases/v${{ needs.determine_app_version.outputs.app_version }}) has been created 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "Image tagged **v${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY

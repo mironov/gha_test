@@ -43,11 +43,11 @@ jobs:
       group: ${{ github.event.pull_request.head.ref }} # A single build running per branch
       cancel-in-progress: true
     with:
-      app_version: ${{ needs.determine_app_version.outputs.app_version }}
+      app_version: v${{ needs.determine_app_version.outputs.app_version }}
       commit_sha: ${{ github.event.pull_request.head.sha }}
       cache_tag: pr-${{ github.event.pull_request.number }}
       push_to_production: true
-      stage: rc
+      target: rc
   generate_summary:
     name: Generate summary
     needs: [determine_app_version, build_and_push_image]
@@ -56,4 +56,4 @@ jobs:
       - name: Generate summary
         run: |
           echo "Pull Request for [${{ github.event.pull_request.title }}](https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}) has been updated 🎉" >> $GITHUB_STEP_SUMMARY
-          echo "Image tagged **${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY
+          echo "Image tagged **v${{ needs.determine_app_version.outputs.app_version }}** has been built and pushed to the registry." >> $GITHUB_STEP_SUMMARY

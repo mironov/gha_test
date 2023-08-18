@@ -21,7 +21,7 @@ on:
         default: false
         required: false
         type: boolean
-      stage:
+      target:
         default: rc
         required: false
         type: string
@@ -70,7 +70,7 @@ jobs:
           file: GHA.Dockerfile
           push: true
           provenance: false
-          target: ${{ inputs.stage }}
+          target: ${{ inputs.target }}
           tags: |
             ghcr.io/${{ github.repository }}:${{ inputs.commit_sha }}
           build-args: |
