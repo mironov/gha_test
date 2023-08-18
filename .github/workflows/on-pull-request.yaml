@@ -45,4 +45,4 @@ jobs:
       commit_sha: ${{ github.event.pull_request.head.sha }}
       base_sha: ${{ github.event.pull_request.base.sha }}
       cache_tag: pr-${{ github.event.pull_request.number }}
-      stage: rc
+      target: rc
