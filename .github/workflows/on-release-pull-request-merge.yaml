@@ -97,7 +97,7 @@ jobs:
     with:
       environment: sandbox
       source_image: ${{ github.event.repository.name }}:${{ needs.commit_version_file.outputs.commit_sha }}
-      destination_image: ${{ github.event.repository.name }}:${{ needs.determine_app_version.outputs.app_version }}
+      destination_image: ${{ github.event.repository.name }}:v${{ needs.determine_app_version.outputs.app_version }}
   push_to_production:
     name: Push to production
     needs: [determine_app_version, commit_version_file, build_image]
@@ -106,7 +106,7 @@ jobs:
     with:
       environment: production
       source_image: ${{ github.event.repository.name }}:${{ needs.commit_version_file.outputs.commit_sha }}
-      destination_image: ${{ github.event.repository.name }}:${{ needs.determine_app_version.outputs.app_version }}
+      destination_image: ${{ github.event.repository.name }}:v${{ needs.determine_app_version.outputs.app_version }}
   generate_summary:
     name: Generate summary
     needs: [determine_app_version, build_image, push_to_sandbox, push_to_production, create_release]
