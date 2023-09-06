@@ -78,7 +78,7 @@ jobs:
               draft: false,
               prerelease: false,
             });
-  build_and_push_image:
+  build_image:
     name: Image
     needs: [determine_app_version, commit_version_file]
     uses: ./.github/workflows/build-and-push-docker-image.yml
@@ -89,10 +89,27 @@ jobs:
       base_sha: ${{ github.event.pull_request.base.sha }}
       cache_tag: pr-${{ github.event.pull_request.number }}
       target: release
-      push_to_production: true
+  push_to_sandbox:
+    name: Push to sandbox
+    needs: [determine_app_version, commit_version_file, build_image]
+    uses: ./.github/workflows/push-docker-image-to-ecr-registry.yml
+    secrets: inherit
+    with:
+      environment: sandbox
+      source_image: ${{ github.event.repository.name }}:${{ needs.commit_version_file.outputs.commit_sha }}
+      destination_image: ${{ github.event.repository.name }}:${{ needs.determine_app_version.outputs.app_version }}
+  push_to_production:
+    name: Push to production
+    needs: [determine_app_version, commit_version_file, build_image]
+    uses: ./.github/workflows/push-docker-image-to-ecr-registry.yml
+    secrets: inherit
+    with:
+      environment: production
+      source_image: ${{ github.event.repository.name }}:${{ needs.commit_version_file.outputs.commit_sha }}
+      destination_image: ${{ github.event.repository.name }}:${{ needs.determine_app_version.outputs.app_version }}
   generate_summary:
     name: Generate summary
-    needs: [determine_app_version, build_and_push_image, create_release]
+    needs: [determine_app_version, build_image, push_to_sandbox, push_to_production, create_release]
     runs-on: ubuntu-latest
     steps:
       - name: Generate summary

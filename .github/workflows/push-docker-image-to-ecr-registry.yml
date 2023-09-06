@@ -1,0 +1,21 @@
+name: Push image from GH registry to ECR registry
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      source_image:
+        required: true
+        type: string
+      destination_image:
+        required: true
+        type: string
+
+jobs:
+  prepare:
+    name: Mock
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mock step
+        run: echo "Will push ${{ inputs.source_image }} to ${{ inputs.destination_image }} on ${{ inputs.environment }}"

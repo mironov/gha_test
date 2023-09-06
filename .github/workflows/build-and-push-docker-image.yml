@@ -1,9 +1,9 @@
 name: Build and Push Docker image
 
 env:
-  SENTRY_ORG: "jane-app"
-  SENTRY_FE_PROJECT: "jane-frontend"
-  SENTRY_BE_PROJECT: "jane-backend"
+  SENTRY_ORG: 'jane-app'
+  SENTRY_FE_PROJECT: 'jane-frontend'
+  SENTRY_BE_PROJECT: 'jane-backend'
 
 on:
   workflow_call:
@@ -17,10 +17,6 @@ on:
       base_sha:
         required: false
         type: string
-      push_to_production:
-        default: false
-        required: false
-        type: boolean
       target:
         default: rc
         required: false
@@ -30,12 +26,12 @@ on:
         type: string
 
 jobs:
-  build_and_push_image:
+  build_image:
     name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.3
         with:
           ref: ${{ inputs.commit_sha }}
           fetch-depth: 0
