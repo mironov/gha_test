@@ -98,6 +98,14 @@ export const createPullRequest = async (
     draft: false,
   })
 
+  // Request review from the deployer
+  await octokit.rest.pulls.requestReviewers({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    pull_number: pullRequest.number,
+    reviewers: [context.actor],
+  })
+
   // Add labels to the pull request as it can't be done in the create call
   await octokit.rest.issues.addLabels({
     owner: context.repo.owner,
